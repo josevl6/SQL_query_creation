@@ -91,20 +91,13 @@ FROM staff INNER JOIN address
 ON staff.address_id = address.address_id;
 
 -- 6b. Use `JOIN` to display the total amount rung up by each staff member in August of 2005. Use tables `staff` and `payment`. 
-SELECT *
-FROM payment;
+-- SELECT *
+-- FROM payment;
 
 SELECT s.first_name, s.last_name, SUM(p.amount) AS "Total amount rung up per staff member",p.payment_date
-FROM staff s INNER JOIN payment p
+FROM staff s LEFT OUTER JOIN payment p
 ON s.staff_id = p.staff_id
-GROUP BY p.staff_id
-WHERE p.payment_date BETWEEN "2005-08-01%" AND "2005-08-31%";
-
-WHERE p.payment_date BETWEEN str_to_date('2005-08-01','%Y-%m-%d') AND str_to_date('2005-08-31','%Y-%m-%d');
-
-WHERE p.payment_date BETWEEN "2005-08-01%" AND "2005-08-31%";
-?
-HAVING p.payment_date > "2005-08-01%" and p.payment_date < "2005-09-01%"; 
+WHERE p.payment_date > "2005-08-01%" AND p.payment_date < "2005-09-01%"; 
 
 -- 6c. List each film and the number of actors who are listed for that film. Use tables `film_actor` and `film`. Use inner join.
 SELECT f.title, COUNT(fa.actor_id) AS "Number of Actors"
