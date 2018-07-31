@@ -91,18 +91,20 @@ FROM staff INNER JOIN address
 ON staff.address_id = address.address_id;
 
 -- 6b. Use `JOIN` to display the total amount rung up by each staff member in August of 2005. Use tables `staff` and `payment`. 
--- SELECT *
--- FROM payment;
+SELECT *
+FROM payment;
 
 SELECT s.first_name, s.last_name, SUM(p.amount) AS "Total amount rung up per staff member",p.payment_date
 FROM staff s INNER JOIN payment p
 ON s.staff_id = p.staff_id
 GROUP BY p.staff_id
-HAVING p.payment_date > "2005-07-31%" AND p.payment_date < "2005-09-01%";
+WHERE p.payment_date BETWEEN "2005-08-01%" AND "2005-08-31%";
 
-HAVING p.payment_date between "2005-08-01%" and p.payment_date"2005-08-31%";
--- ?
--- HAVING p.payment_date > "2005-08-01%" and p.payment_date < "2005-09-01%"; 
+WHERE p.payment_date BETWEEN str_to_date('2005-08-01','%Y-%m-%d') AND str_to_date('2005-08-31','%Y-%m-%d');
+
+WHERE p.payment_date BETWEEN "2005-08-01%" AND "2005-08-31%";
+?
+HAVING p.payment_date > "2005-08-01%" and p.payment_date < "2005-09-01%"; 
 
 -- 6c. List each film and the number of actors who are listed for that film. Use tables `film_actor` and `film`. Use inner join.
 SELECT f.title, COUNT(fa.actor_id) AS "Number of Actors"
@@ -230,14 +232,39 @@ INNER JOIN country cnt
 ON ct.country_id = cnt.country_id
 ORDER BY cnt.country ASC;
 
--- 7h. List the top five genres in gross revenue in descending order. (**Hint**: you may need to use the following tables: category, film_category, inventory, payment, and rental.)
+-- 7h. List the top five genres in gross revenue in descending order. (**Hint**: 
+-- you may need to use the following tables: category, film_category, inventory, payment, and rental.)
 
+SELECT c.name, SUM(p.amount)
+FROM category c LEFT OUTER JOIN film_category fc
+ON c.category_id = fc.category_id
+LEFT OUTER JOIN inventory i
+ON fc.film_id = i.film_id
+LEFT OUTER JOIN rental r
+ON i.inventory_id = r.inventory_id
+LEFT OUTER JOIN payment p
+ON r.rental_id = p.rental_id
+GROUP BY c.name
+ORDER BY sum(p.amount) DESC
+LIMIT 5;
 
 -- 8a. In your new role as an executive, you would like to have an easy way of viewing the Top five genres by gross revenue. Use the solution from the problem above to create a view. If you haven't solved 7h, you can substitute another query to create a view.
-
+CREATE VIEW topFive_gross_genres AS
+SELECT c.name, SUM(p.amount)
+FROM category c LEFT OUTER JOIN film_category fc
+ON c.category_id = fc.category_id
+LEFT OUTER JOIN inventory i
+ON fc.film_id = i.film_id
+LEFT OUTER JOIN rental r
+ON i.inventory_id = r.inventory_id
+LEFT OUTER JOIN payment p
+ON r.rental_id = p.rental_id
+GROUP BY c.name
+ORDER BY sum(p.amount) DESC
+LIMIT 5;
 
 -- 8b. How would you display the view that you created in 8a?
-select * from top_five_grossing_genres;
+SELECT * FROM topFive_gross_genres;
 
 -- 8c. You find that you no longer need the view `top_five_genres`. Write a query to delete it.
-DROP VIEW top_five_grossing_genres;
+DROP VIEW topFive_gross_genres;
